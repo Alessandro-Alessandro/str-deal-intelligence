@@ -1,0 +1,23 @@
+{
+  "firm_name": "Huddleston Reef LLC",
+  "investment_thresholds": {
+    "minimum_str_uplift_ratio": 1.8,
+    "target_str_uplift_ratio": 2.0,
+    "minimum_net_uplift_ratio_after_costs": 1.4
+  },
+  "regulatory_risk_tolerance": {
+    "green": "auto-qualify for further underwriting",
+    "yellow": "requires manual review before proceeding",
+    "red": "do not pursue regardless of financial upside"
+  },
+  "preferred_property_profile": {
+    "bedrooms_min": 2,
+    "bedrooms_max": 5,
+    "property_types": ["single_family", "townhome", "condo_with_str_allowed_hoa"],
+    "max_asking_monthly_rent": 6000
+  },
+  "markets_to_avoid": [
+    "Miami Beach, FL"
+  ],
+  "notes": "Miami Beach carries some of the strictest STR restrictions in the country per prior underwriting reviews; deprioritized regardless of financial upside unless regulatory posture changes."
+}

@@ -1,0 +1,44 @@
+{
+  "past_deals": [
+    {
+      "market": "Hollywood, FL",
+      "property_type": "single_family",
+      "bedrooms": 4,
+      "asking_monthly_rent": 4500,
+      "projected_str_uplift_ratio": 1.75,
+      "actual_str_uplift_ratio_first_year": 1.68,
+      "outcome": "pursued",
+      "notes": "Slightly under projection; occupancy ramp took longer than modeled in months 1-3."
+    },
+    {
+      "market": "Fort Lauderdale, FL",
+      "property_type": "condo",
+      "bedrooms": 2,
+      "asking_monthly_rent": 3200,
+      "projected_str_uplift_ratio": 2.3,
+      "actual_str_uplift_ratio_first_year": 2.41,
+      "outcome": "pursued",
+      "notes": "Outperformed projection; strong proximity to FLL airport corridor demand."
+    },
+    {
+      "market": "Miami Beach, FL",
+      "property_type": "condo",
+      "bedrooms": 3,
+      "asking_monthly_rent": 5800,
+      "projected_str_uplift_ratio": 2.6,
+      "actual_str_uplift_ratio_first_year": null,
+      "outcome": "passed",
+      "notes": "Strong financial projection but regulatory risk flagged red; passed per firm policy regardless of upside."
+    },
+    {
+      "market": "Hialeah, FL",
+      "property_type": "townhome",
+      "bedrooms": 3,
+      "asking_monthly_rent": 2900,
+      "projected_str_uplift_ratio": 1.55,
+      "actual_str_uplift_ratio_first_year": null,
+      "outcome": "passed",
+      "notes": "Below minimum uplift threshold at underwriting; not pursued."
+    }
+  ]
+}

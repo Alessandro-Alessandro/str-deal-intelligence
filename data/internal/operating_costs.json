@@ -1,0 +1,15 @@
+{
+  "recurring_costs": {
+    "property_management_fee_pct_of_gross_revenue": 0.20,
+    "platform_fee_pct_of_gross_revenue": 0.03,
+    "cleaning_cost_per_turnover_usd": 120,
+    "estimated_turnovers_per_month_at_70pct_occupancy": 4,
+    "monthly_utilities_usd": 350,
+    "monthly_str_insurance_premium_usd": 175
+  },
+  "one_time_setup_costs": {
+    "furnishing_and_setup_usd": 15000,
+    "furnishing_amortization_months": 36
+  },
+  "notes": "Figures reflect Huddleston Reef's typical South Florida cost structure; used as a reasonable default when a market-specific cost estimate is not available. A production version would source these per-market rather than using a single default."
+}

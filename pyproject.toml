@@ -5,7 +5,7 @@ description = "Dual-report STR deal evaluator: internal underwriting brief + own
 authors = [{ name = "Alessandro Garcia-Alario" }]
 requires-python = ">=3.10,<3.14"
 dependencies = [
-    "crewai[tools]>=0.100.0",
+    "crewai[tools,anthropic]>=0.100.0",
     "requests>=2.31.0",
     "python-dotenv>=1.0.0",
 ]

@@ -1,0 +1,123 @@
+property_intake_task:
+  description: >
+    Look up the property at {address} using the RentCast Property Lookup
+    tool. Return the bedroom count, bathroom count, square footage,
+    property type, and the long-term rent estimate (AVM). If an owner
+    name was provided ({owner_name}), note it for later use -- do not
+    attempt to look up or verify ownership yourself.
+  expected_output: >
+    A structured summary of the property: bedrooms, bathrooms, square
+    footage, property type, and long-term rent estimate in USD/month.
+    Note any fields RentCast could not return rather than guessing them.
+  agent: property_intake_specialist
+
+regulatory_task:
+  description: >
+    Research current short-term rental regulations for the jurisdiction
+    covering {address}. Investigate permit requirements, zoning
+    restrictions, occupancy limits, and any active moratoriums or
+    pending legislation that would affect STR operation at this address.
+  expected_output: >
+    A regulatory summary covering permit requirements, zoning
+    restrictions, occupancy limits, and any moratoriums or pending
+    legislation. Must end with a clear risk flag: RED (operation likely
+    prohibited), YELLOW (permitted with meaningful hurdles), or GREEN
+    (generally permissive).
+  agent: regulatory_analyst
+
+market_underwriting_task:
+  description: >
+    Using the bedroom and bathroom counts from the property intake
+    findings, call the AirROI STR Revenue Estimator for {address} to get
+    a comparable-based ADR, occupancy, and projected annual gross
+    revenue estimate.
+  expected_output: >
+    An STR market estimate: projected average daily rate (ADR),
+    projected occupancy rate, and projected annual gross revenue at that
+    occupancy. State clearly that these are estimates based on
+    comparable listings, not guarantees.
+  agent: market_underwriting_analyst
+
+financial_task:
+  description: >
+    Using the long-term rent estimate from property intake and the STR
+    gross revenue estimate from market underwriting, plus Huddleston
+    Reef's operating cost data (call the Internal Data tool with
+    dataset='operating_costs'), compute: (1) realistic monthly and
+    annual operating costs for this property, (2) net STR revenue after
+    those costs, (3) the STR Uplift Ratio -- net STR annual revenue
+    divided by (long-term monthly rent times 12), (4) breakeven
+    occupancy rate. Show your math, don't just state conclusions.
+    You must always build a 3-scenario sensitivity table -- conservative,
+    mid-range, and optimistic occupancy/ADR combinations -- rather than a
+    single point estimate. Derive the three occupancy/ADR pairs from the
+    market underwriting estimate (e.g. conservative and optimistic bracket
+    the mid-range estimate), and compute net STR revenue and the STR
+    Uplift Ratio separately for each of the three scenarios, applying the
+    same operating-cost structure to each.
+  expected_output: >
+    A financial model: monthly and annual operating costs broken down by
+    category, then a sensitivity table with exactly three rows --
+    Conservative, Mid-Range, and Optimistic -- each row showing its
+    occupancy rate, ADR, net STR annual revenue after costs, and STR
+    Uplift Ratio. Call out the Mid-Range STR Uplift Ratio as the headline
+    number, and state the breakeven occupancy percentage.
+  agent: financial_analyst
+
+internal_fit_task:
+  description: >
+    Call the Internal Data tool with dataset='investment_criteria' and
+    dataset='track_record'. Compare this deal's STR Uplift Ratio and
+    regulatory risk flag against Huddleston Reef's stated thresholds and
+    risk tolerance. Cite at least one comparable past deal from the
+    track record if one is relevant precedent. State plainly whether
+    this deal fits the firm's criteria.
+  expected_output: >
+    A fit assessment stating whether the deal clears the firm's minimum
+    and target Uplift Ratio thresholds, whether the regulatory risk flag
+    is within tolerance, and a citation to relevant past-deal precedent
+    from the track record if applicable.
+  agent: internal_fit_analyst
+
+investor_report_task:
+  description: >
+    Read all prior findings -- property details, regulatory risk,
+    market estimate, financial model, and internal fit assessment.
+    Produce a one-page internal underwriting brief for Huddleston Reef
+    with: VERDICT (PURSUE, PASS, or MANUAL REVIEW), the property address
+    and key stats, two-sentence reasoning, the STR Uplift Ratio headline,
+    regulatory risk flag, top 3 opportunities, top 3 risks, and one
+    recommended next action. Date the brief {current_date} -- use that
+    exact date, don't guess or default to a training-data date.
+  expected_output: >
+    A complete internal underwriting brief with a verdict that is
+    exactly PURSUE, PASS, or MANUAL REVIEW, plus the property's key
+    stats, reasoning, STR Uplift Ratio, regulatory risk flag, top 3
+    opportunities, top 3 risks, a recommended next action, and dated
+    {current_date}. Readable in under a minute.
+  agent: investor_report_writer
+
+owner_pitch_task:
+  description: >
+    Using ONLY the property details and the STR gross revenue estimate,
+    write a warm, credible report for the property owner (address them
+    by name if {owner_name} was provided, otherwise address the property
+    generally). Focus entirely on what their property could realistically
+    earn as a short-term rental and why partnering with an experienced
+    operator gets them there. Do not mention internal underwriting terms,
+    uplift ratios, margins, or any decision criteria -- those are not
+    relevant to this reader. Do not state any specific occupancy
+    percentage, nightly rate, or other figure that was not actually
+    returned by a tool -- including comparisons like "owner-managed vs.
+    professionally-managed occupancy" ranges. If you want to make the
+    case for professional management, argue it qualitatively (pricing
+    strategy, guest response time, listing optimization) without
+    inventing numbers to back it.
+  expected_output: >
+    A warm, professional, owner-facing report: projected earning
+    potential in plain language, what makes the property well-suited for
+    STR, and a clear next step to explore partnering. No internal
+    terminology, thresholds, or figures beyond what's relevant to the
+    owner's own earning potential, and no fabricated statistics -- every
+    number traces back to actual tool output.
+  agent: owner_pitch_writer
