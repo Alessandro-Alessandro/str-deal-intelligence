@@ -41,8 +41,10 @@ guardrail (owner_pitch_guardrail.py) is a second, independent check on
 top of that -- defense in depth, not a single point of failure.
 """
 
+from datetime import date
+
 from crewai import Agent, Crew, Process, Task
-from crewai.project import CrewBase, agent, crew, task
+from crewai.project import CrewBase, agent, before_kickoff, crew, task
 from crewai_tools import SerperDevTool
 
 from str_deal_intelligence.tools.rentcast_property_tool import RentCastPropertyTool
@@ -62,6 +64,14 @@ class StrDealIntelligenceCrew:
 
     agents_config = "config/agents.yaml"
     tasks_config = "config/tasks.yaml"
+
+    @before_kickoff
+    def set_current_date(self, inputs: dict) -> dict:
+        # Runs before any task starts, regardless of caller (main.py's
+        # argparse flow or AMP triggering the crew directly) -- so
+        # current_date is never something a human has to supply.
+        inputs["current_date"] = date.today().strftime("%B %-d, %Y")
+        return inputs
 
     # ---------------------------------------------------------------- agents
 

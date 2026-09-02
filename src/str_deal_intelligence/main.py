@@ -11,7 +11,6 @@ throughout development and testing (see README for why this address).
 """
 
 import argparse
-from datetime import date
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -60,7 +59,6 @@ def run():
     inputs = {
         "address": args.address,
         "owner_name": args.owner,
-        "current_date": date.today().strftime("%B %-d, %Y"),
         "bedroom_override": str(args.bedrooms) if args.bedrooms is not None else "none provided",
         "bathroom_override": str(args.bathrooms) if args.bathrooms is not None else "none provided",
         "already_furnished": str(args.furnished),
