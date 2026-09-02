@@ -50,6 +50,9 @@ def _term_found(term: str, lowered_text: str) -> bool:
     return bool(pattern.search(lowered_text)) if pattern else term in lowered_text
 
 
+_LEADING_HORIZONTAL_RULE = re.compile(r"\A-{3,}\s*\n+")
+
+
 def validate_owner_pitch(output):
     text = output.raw if hasattr(output, "raw") else output
     lowered = text.lower()
@@ -65,4 +68,11 @@ def validate_owner_pitch(output):
             f"or decision criteria.",
         )
 
-    return (True, output)
+    # The writer sometimes opens the report with a bare "---" line as a
+    # visual divider. Markdown preview tools sniff a leading "---" as a
+    # YAML front-matter delimiter, and the prose that follows isn't valid
+    # YAML (e.g. "**SUBJECT: ..." starts with the alias character "*"),
+    # so the preview fails instead of rendering the report. Strip it.
+    cleaned = _LEADING_HORIZONTAL_RULE.sub("", text, count=1)
+
+    return (True, cleaned)

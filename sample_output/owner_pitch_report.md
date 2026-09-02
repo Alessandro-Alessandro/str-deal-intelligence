@@ -1,5 +1,3 @@
----
-
 **SUBJECT: Income Opportunity for 7831 Hope St, Hollywood, FL**
 
 Hi there,

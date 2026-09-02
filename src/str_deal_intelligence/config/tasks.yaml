@@ -284,7 +284,9 @@ owner_pitch_task:
     "management fee" or any revenue-share/co-hosting framing), thresholds,
     or figures beyond what's relevant to the owner's own earning
     potential, and no fabricated statistics -- every number traces back
-    to actual tool output.
+    to actual tool output. Do not open the report with a bare "---"
+    horizontal-rule line -- markdown preview tools read a leading "---"
+    as a YAML front-matter delimiter and fail to render the report.
   agent: owner_pitch_writer
 
 deal_packet_confirmation_task:
