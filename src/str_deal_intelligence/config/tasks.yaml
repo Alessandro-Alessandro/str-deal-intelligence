@@ -151,11 +151,20 @@ investor_report_task:
   description: >
     Read all prior findings -- property details, regulatory risk,
     market estimate, financial model, and internal fit assessment.
-    Produce a one-page internal underwriting brief for Huddleston Reef
-    with: VERDICT (PURSUE, PASS, or MANUAL REVIEW), the property address
-    and key stats, two-sentence reasoning, the Mid-Range Net Annual
-    Profit AND Mid-Range Cash-on-Cash Return as the two headline metrics
-    (with Rent Coverage Ratio noted as supporting context, not a gating
+    Produce a one-page internal underwriting brief for Huddleston Reef,
+    in this order:
+
+    1. Executive Summary (new, goes first, before the verdict): 3-4
+    sentences a busy reader could read alone and walk away with the full
+    picture -- the property, the verdict, the headline number (Mid-Range
+    Net Annual Profit or Mid-Range Cash-on-Cash Return, whichever better
+    conveys the deal), and the one-sentence reason why. This summarizes
+    the brief, it does not replace any section below.
+
+    2. VERDICT (PURSUE, PASS, or MANUAL REVIEW), the property address and
+    key stats, two-sentence reasoning, the Mid-Range Net Annual Profit
+    AND Mid-Range Cash-on-Cash Return as the two headline metrics (with
+    Rent Coverage Ratio noted as supporting context, not a gating
     number), regulatory risk flag, top 3 opportunities, top 3 risks, and
     one recommended next action. The verdict follows the internal fit
     assessment's dual-threshold logic, stated explicitly as one of three
@@ -163,17 +172,50 @@ investor_report_task:
     their minimums (and regulatory risk is in tolerance); MANUAL REVIEW
     if exactly ONE of the two clears (name explicitly which metric fell
     short); PASS if NEITHER clears (state explicitly that both metrics
-    failed to clear). Date the brief {current_date} -- use that exact
-    date, don't guess or default to a training-data date.
+    failed to clear).
+
+    3. Comparable Properties (new, only if the market underwriting
+    findings contain individual comparable listings -- e.g. specific
+    addresses/areas with their own ADR or occupancy figures, not just an
+    aggregate estimate): a short table of the 2-3 strongest actual comps
+    cited in those findings, with area/address, ADR, and occupancy where
+    available. If the market underwriting findings only contain an
+    aggregate estimate with no listing-level detail, omit this section
+    entirely -- never invent comp details to fill it.
+
+    4. Data Confidence (new, near the bottom, before or after top
+    risks/opportunities as fits the flow): one or two sentences plainly
+    naming which inputs are hard data (RentCast property facts) versus
+    modeled estimates (AirROI revenue projections, regulatory research
+    from web search) versus internal assumptions (Huddleston Reef's
+    operating cost structure). Be honest about what is and isn't certain
+    -- do not oversell confidence the data doesn't support.
+
+    Formatting: use consistent header levels for each named section
+    above, a consistent bolding pattern for dollar figures and
+    percentages throughout, and state each figure once in the section
+    where it belongs rather than restating the same number in multiple
+    places. Date the brief {current_date} -- use that exact date, don't
+    guess or default to a training-data date.
   expected_output: >
-    A complete internal underwriting brief with a verdict that is
-    exactly PURSUE, PASS, or MANUAL REVIEW -- PURSUE when both financial
-    thresholds clear, MANUAL REVIEW when exactly one clears (naming
-    which), PASS when neither clears -- plus the property's key stats,
-    reasoning, Net Annual Profit and Cash-on-Cash Return as the two
-    headline metrics (Rent Coverage Ratio as supporting context only),
-    regulatory risk flag, top 3 opportunities, top 3 risks, a recommended
-    next action, and dated {current_date}. Readable in under a minute.
+    A complete internal underwriting brief opening with a 3-4 sentence
+    Executive Summary (property, verdict, headline number, one-sentence
+    why), followed by a verdict that is exactly PURSUE, PASS, or MANUAL
+    REVIEW -- PURSUE when both financial thresholds clear, MANUAL REVIEW
+    when exactly one clears (naming which), PASS when neither clears --
+    plus the property's key stats, reasoning, Net Annual Profit and
+    Cash-on-Cash Return as the two headline metrics (Rent Coverage Ratio
+    as supporting context only), regulatory risk flag, top 3
+    opportunities, top 3 risks, a recommended next action, and dated
+    {current_date}. Includes a Comparable Properties mini-table of 2-3
+    real comps (area/address, ADR, occupancy where available) only if
+    the market underwriting findings actually contain listing-level
+    comp data -- omitted entirely otherwise, never fabricated. Includes
+    a short, honest Data Confidence note distinguishing hard data
+    (RentCast) from modeled estimates (AirROI, regulatory web research)
+    from internal assumptions (operating cost structure). Consistent
+    header levels and number formatting throughout, with no figure
+    restated across multiple sections. Readable in under a minute.
   agent: investor_report_writer
 
 owner_pitch_task:
@@ -187,6 +229,14 @@ owner_pitch_task:
     co-host and pays nothing for a service. Never use the phrase
     "management fee" or otherwise imply a revenue-share or co-hosting
     arrangement.
+
+    Open the report as genuine, personalized outreach rather than a
+    marketing brochure -- something like: "I saw you have [address]
+    listed for rent at [price]/month. I thought you might be interested
+    in an alternative income opportunity..." using the property's actual
+    address and long-term rent figure. The tone throughout should be
+    professional but warm: one person reaching out to a property owner
+    about a business opportunity, not a sales pitch deck.
 
     First, compute the STR revenue margin over long-term rent using ONLY
     the GROSS STR revenue figures already available to you (never any
@@ -222,8 +272,11 @@ owner_pitch_task:
     actually returned by a tool -- including comparisons like
     "owner-managed vs. professionally-managed occupancy" ranges.
   expected_output: >
-    A warm, professional, owner-facing report structured according to
-    the margin-based lead logic above: projected earning potential in
+    A warm, professional, owner-facing report that opens as genuine
+    personalized outreach naming the property's actual address and
+    monthly rent (not a generic "Dear Property Owner" salutation or
+    marketing-deck opening), then structured according to the
+    margin-based lead logic above: projected earning potential in
     plain language, what makes the property well-suited for STR, the
     multi-year-stability and zero-management-responsibility points
     (always present, whether leading or supporting), and a clear next
