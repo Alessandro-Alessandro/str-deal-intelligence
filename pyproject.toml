@@ -10,6 +10,9 @@ dependencies = [
     "python-dotenv>=1.0.0",
 ]
 
+[tool.crewai]
+type = "crew"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
