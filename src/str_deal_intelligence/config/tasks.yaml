@@ -5,10 +5,20 @@ property_intake_task:
     property type, and the long-term rent estimate (AVM). If an owner
     name was provided ({owner_name}), note it for later use -- do not
     attempt to look up or verify ownership yourself.
+
+    A manual bedroom_override of "{bedroom_override}" and bathroom_override
+    of "{bathroom_override}" may have been supplied. If either is not
+    "none provided", use that value instead of RentCast's for that field
+    everywhere in your output -- assessor/public records can lag a
+    renovation or permit and the override reflects known-current fact --
+    and explicitly note in your summary that a manual override was
+    applied in place of RentCast's own figure.
   expected_output: >
     A structured summary of the property: bedrooms, bathrooms, square
     footage, property type, and long-term rent estimate in USD/month.
-    Note any fields RentCast could not return rather than guessing them.
+    Note any fields RentCast could not return rather than guessing them,
+    and flag clearly if a manual bedroom/bathroom override was applied
+    in place of RentCast's data.
   agent: property_intake_specialist
 
 regulatory_task:
@@ -40,43 +50,101 @@ market_underwriting_task:
 
 financial_task:
   description: >
+    This property is a rental arbitrage play: Huddleston Reef pays the
+    long-term rent as a real monthly expense and re-lets the unit as an
+    STR. The long-term rent is therefore a COST, not just a comparison
+    baseline -- treat it accordingly.
+
     Using the long-term rent estimate from property intake and the STR
     gross revenue estimate from market underwriting, plus Huddleston
     Reef's operating cost data (call the Internal Data tool with
-    dataset='operating_costs'), compute: (1) realistic monthly and
-    annual operating costs for this property, (2) net STR revenue after
-    those costs, (3) the STR Uplift Ratio -- net STR annual revenue
-    divided by (long-term monthly rent times 12), (4) breakeven
-    occupancy rate. Show your math, don't just state conclusions.
-    You must always build a 3-scenario sensitivity table -- conservative,
-    mid-range, and optimistic occupancy/ADR combinations -- rather than a
-    single point estimate. Derive the three occupancy/ADR pairs from the
-    market underwriting estimate (e.g. conservative and optimistic bracket
-    the mid-range estimate), and compute net STR revenue and the STR
-    Uplift Ratio separately for each of the three scenarios, applying the
-    same operating-cost structure to each.
+    dataset='operating_costs'), compute realistic monthly and annual
+    operating costs for this property:
+    - Property management fee and platform fee, both as a percentage of
+      gross STR revenue.
+    - Cleaning cost: turnovers/month = (30 x occupancy) /
+      average_length_of_stay_nights, using the average_length_of_stay_nights
+      value from the operating cost data exactly as given -- do not
+      re-derive or guess this constant. Cleaning cost/month = turnovers/month
+      x cleaning_cost_per_turnover_usd.
+    - Fixed monthly costs: utilities + STR insurance premium.
+    - Furnishing/setup cost, amortized monthly: check whether
+      already_furnished is "True" or "False" ({already_furnished}). If
+      True, use furnished_property_touch_up_usd amortized over
+      touch_up_amortization_months. If False, use
+      full_furnishing_and_setup_usd amortized over
+      full_furnishing_amortization_months.
+    - CRITICAL: the long-term monthly rent from property intake, times 12,
+      as its own annual operating cost line item -- this is the real cash
+      cost of holding the lease while operating the STR.
+
+    Then compute Total Cash Invested (a single figure, the same across
+    all three scenarios -- state it once, before the sensitivity table,
+    not repeated per row):
+    - Furnishing/setup cost (branch on already_furnished exactly as
+      above -- do not amortize this one, use the full one-time amount).
+    - Plus one month's rent (first month).
+    - Plus a security deposit = monthly rent x
+      security_deposit_multiplier_of_monthly_rent (from the operating
+      cost data).
+
+    Show your math, don't just state conclusions. You must always build a
+    3-scenario sensitivity table -- conservative, mid-range, and
+    optimistic occupancy/ADR combinations -- rather than a single point
+    estimate. Derive the three occupancy/ADR pairs from the market
+    underwriting estimate (e.g. conservative and optimistic bracket the
+    mid-range estimate), and compute the following for each of the three
+    scenarios, applying the same cost structure (including rent) to each:
+    - Net Annual Profit = Gross STR Annual Revenue - ALL annual operating
+      costs, including the annual rent cost above. This is the headline
+      profitability metric.
+    - Rent Coverage Ratio = Gross STR Annual Revenue / Annual Rent. This
+      is a quick screening multiple only, not a profit measure -- label
+      it as such and never present it as if it already accounts for
+      operating costs.
+    - Cash-on-Cash Return (%) = (Net Annual Profit / Total Cash Invested)
+      x 100. This is the second headline metric alongside Net Annual
+      Profit -- it measures return on the cash actually put into the
+      deal, not just profit in absolute dollars.
   expected_output: >
     A financial model: monthly and annual operating costs broken down by
-    category, then a sensitivity table with exactly three rows --
-    Conservative, Mid-Range, and Optimistic -- each row showing its
-    occupancy rate, ADR, net STR annual revenue after costs, and STR
-    Uplift Ratio. Call out the Mid-Range STR Uplift Ratio as the headline
-    number, and state the breakeven occupancy percentage.
+    category (including the annual rent cost as its own line item),
+    Total Cash Invested stated once, then a sensitivity table with
+    exactly three rows -- Conservative, Mid-Range, and Optimistic -- and
+    five columns: occupancy rate, ADR, Net Annual Profit in dollars, Rent
+    Coverage Ratio, and Cash-on-Cash Return (%). Call out the Mid-Range
+    Net Annual Profit and Mid-Range Cash-on-Cash Return as the two
+    headline numbers, with Rent Coverage Ratio presented as supporting
+    context, not a gating metric.
   agent: financial_analyst
 
 internal_fit_task:
   description: >
     Call the Internal Data tool with dataset='investment_criteria' and
-    dataset='track_record'. Compare this deal's STR Uplift Ratio and
-    regulatory risk flag against Huddleston Reef's stated thresholds and
-    risk tolerance. Cite at least one comparable past deal from the
-    track record if one is relevant precedent. State plainly whether
-    this deal fits the firm's criteria.
+    dataset='track_record'. This deal must clear TWO separate financial
+    thresholds, not one: Mid-Range Net Annual Profit against the minimum
+    and target annual net profit thresholds, AND Mid-Range Cash-on-Cash
+    Return against the minimum and target cash-on-cash return thresholds.
+    State explicitly whether each of the two clears its minimum, then
+    state which of the three cases applies:
+    - BOTH clear their minimums -> grounds for PURSUE.
+    - Exactly ONE clears its minimum (the other does not) -> grounds for
+      MANUAL REVIEW, not PURSUE or PASS; name explicitly which metric
+      (Net Annual Profit or Cash-on-Cash Return) failed to clear.
+    - NEITHER clears its minimum -> grounds for PASS; name explicitly
+      that both metrics failed to clear.
+    Also compare the regulatory risk flag against the firm's risk
+    tolerance. Cite at least one comparable past deal from the track
+    record if one is relevant precedent. State plainly whether this deal
+    fits the firm's criteria.
   expected_output: >
     A fit assessment stating whether the deal clears the firm's minimum
-    and target Uplift Ratio thresholds, whether the regulatory risk flag
-    is within tolerance, and a citation to relevant past-deal precedent
-    from the track record if applicable.
+    and target thresholds for BOTH Net Annual Profit and Cash-on-Cash
+    Return individually, which of the three cases applies (both clear =
+    PURSUE grounds, exactly one clears = MANUAL REVIEW grounds, neither
+    clears = PASS grounds) naming which metric(s) fell short, whether the
+    regulatory risk flag is within tolerance, and a citation to relevant
+    past-deal precedent from the track record if applicable.
   agent: internal_fit_analyst
 
 investor_report_task:
@@ -85,16 +153,27 @@ investor_report_task:
     market estimate, financial model, and internal fit assessment.
     Produce a one-page internal underwriting brief for Huddleston Reef
     with: VERDICT (PURSUE, PASS, or MANUAL REVIEW), the property address
-    and key stats, two-sentence reasoning, the STR Uplift Ratio headline,
-    regulatory risk flag, top 3 opportunities, top 3 risks, and one
-    recommended next action. Date the brief {current_date} -- use that
-    exact date, don't guess or default to a training-data date.
+    and key stats, two-sentence reasoning, the Mid-Range Net Annual
+    Profit AND Mid-Range Cash-on-Cash Return as the two headline metrics
+    (with Rent Coverage Ratio noted as supporting context, not a gating
+    number), regulatory risk flag, top 3 opportunities, top 3 risks, and
+    one recommended next action. The verdict follows the internal fit
+    assessment's dual-threshold logic, stated explicitly as one of three
+    cases: PURSUE if BOTH Net Annual Profit and Cash-on-Cash Return clear
+    their minimums (and regulatory risk is in tolerance); MANUAL REVIEW
+    if exactly ONE of the two clears (name explicitly which metric fell
+    short); PASS if NEITHER clears (state explicitly that both metrics
+    failed to clear). Date the brief {current_date} -- use that exact
+    date, don't guess or default to a training-data date.
   expected_output: >
     A complete internal underwriting brief with a verdict that is
-    exactly PURSUE, PASS, or MANUAL REVIEW, plus the property's key
-    stats, reasoning, STR Uplift Ratio, regulatory risk flag, top 3
-    opportunities, top 3 risks, a recommended next action, and dated
-    {current_date}. Readable in under a minute.
+    exactly PURSUE, PASS, or MANUAL REVIEW -- PURSUE when both financial
+    thresholds clear, MANUAL REVIEW when exactly one clears (naming
+    which), PASS when neither clears -- plus the property's key stats,
+    reasoning, Net Annual Profit and Cash-on-Cash Return as the two
+    headline metrics (Rent Coverage Ratio as supporting context only),
+    regulatory risk flag, top 3 opportunities, top 3 risks, a recommended
+    next action, and dated {current_date}. Readable in under a minute.
   agent: investor_report_writer
 
 owner_pitch_task:
@@ -102,22 +181,55 @@ owner_pitch_task:
     Using ONLY the property details and the STR gross revenue estimate,
     write a warm, credible report for the property owner (address them
     by name if {owner_name} was provided, otherwise address the property
-    generally). Focus entirely on what their property could realistically
-    earn as a short-term rental and why partnering with an experienced
-    operator gets them there. Do not mention internal underwriting terms,
-    uplift ratios, margins, or any decision criteria -- those are not
-    relevant to this reader. Do not state any specific occupancy
-    percentage, nightly rate, or other figure that was not actually
-    returned by a tool -- including comparisons like "owner-managed vs.
-    professionally-managed occupancy" ranges. If you want to make the
-    case for professional management, argue it qualitatively (pricing
-    strategy, guest response time, listing optimization) without
-    inventing numbers to back it.
+    generally). This is a landlord relationship, not a management
+    contract: Huddleston Reef would be the OWNER'S TENANT, signing a
+    multi-year lease and subletting as an STR -- the owner is not a
+    co-host and pays nothing for a service. Never use the phrase
+    "management fee" or otherwise imply a revenue-share or co-hosting
+    arrangement.
+
+    First, compute the STR revenue margin over long-term rent using ONLY
+    the GROSS STR revenue figures already available to you (never any
+    internal net-profit or cash-on-cash figures, which you don't have
+    access to and shouldn't reference): margin % = (Gross STR Annual
+    Revenue - Annual Long-Term Rent) / Annual Long-Term Rent x 100, using
+    the mid-range gross revenue scenario.
+
+    Then choose your lead based on that margin:
+    - If margin > 30%: lead with the income comparison (STR earning
+      potential vs. traditional long-term rent) as the primary selling
+      point.
+    - If margin <= 30%: do NOT lead with the income comparison. Instead
+      lead with (a) the property's specific standout features (pool,
+      location, etc.) where applicable, and (b) the stability case: a
+      multi-year agreement with Huddleston Reef means guaranteed,
+      uninterrupted rent for the full term, no vacancy gaps like typical
+      long-term tenant turnover, and zero property management
+      responsibility for the owner, since Huddleston Reef is the tenant
+      and handles 100% of STR operations. The income comparison can
+      still be mentioned, just not as the headline.
+
+    In BOTH cases, include the multi-year-stability and
+    zero-management points somewhere in the report as supporting
+    content, even when income is the lead -- they're genuinely
+    differentiating regardless of the numbers.
+
+    Do not mention internal underwriting terms, uplift ratios, margins,
+    or any decision criteria -- those are not relevant to this reader
+    (the margin % above is for you to decide the report's structure, not
+    something to state to the owner). Do not state any specific
+    occupancy percentage, nightly rate, or other figure that was not
+    actually returned by a tool -- including comparisons like
+    "owner-managed vs. professionally-managed occupancy" ranges.
   expected_output: >
-    A warm, professional, owner-facing report: projected earning
-    potential in plain language, what makes the property well-suited for
-    STR, and a clear next step to explore partnering. No internal
-    terminology, thresholds, or figures beyond what's relevant to the
-    owner's own earning potential, and no fabricated statistics -- every
-    number traces back to actual tool output.
+    A warm, professional, owner-facing report structured according to
+    the margin-based lead logic above: projected earning potential in
+    plain language, what makes the property well-suited for STR, the
+    multi-year-stability and zero-management-responsibility points
+    (always present, whether leading or supporting), and a clear next
+    step to explore partnering. No internal terminology (including
+    "management fee" or any revenue-share/co-hosting framing), thresholds,
+    or figures beyond what's relevant to the owner's own earning
+    potential, and no fabricated statistics -- every number traces back
+    to actual tool output.
   agent: owner_pitch_writer

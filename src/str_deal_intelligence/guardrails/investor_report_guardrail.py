@@ -10,12 +10,17 @@ failure, and the reason gets fed back to the agent to try again.
 
 REQUIRED_SECTIONS = [
     "verdict",
-    "uplift ratio",
     "regulatory",
     "opportunit",  # matches "opportunity" / "opportunities"
     "risk",
     "recommend",
 ]
+
+# Either phrase satisfies the profitability-metric requirement -- accepts
+# "net annual profit" (current) or "uplift ratio" (prior metric) during
+# transition. Must match the full phrase, not just "net profit", since
+# "net annual profit" doesn't contain "net profit" as a substring.
+PROFIT_METRIC_TERMS = ["net annual profit", "uplift ratio"]
 
 VALID_VERDICTS = ["PURSUE", "PASS", "MANUAL REVIEW"]
 
@@ -30,6 +35,13 @@ def validate_investor_report(output):
             False,
             f"Report is missing required content: {', '.join(missing)}. "
             f"Rewrite the report to include all of: {', '.join(REQUIRED_SECTIONS)}.",
+        )
+
+    if not any(term in lowered for term in PROFIT_METRIC_TERMS):
+        return (
+            False,
+            "Report must state the headline profitability metric (Net "
+            "Annual Profit). Rewrite to include it.",
         )
 
     if not any(v in text.upper() for v in VALID_VERDICTS):

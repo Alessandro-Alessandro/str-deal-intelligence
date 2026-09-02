@@ -3,13 +3,17 @@
     "property_management_fee_pct_of_gross_revenue": 0.20,
     "platform_fee_pct_of_gross_revenue": 0.03,
     "cleaning_cost_per_turnover_usd": 120,
-    "estimated_turnovers_per_month_at_70pct_occupancy": 4,
+    "average_length_of_stay_nights": 3.5,
+    "average_length_of_stay_note": "Estimated -- South Florida beach-market leisure travel typically skews short (weekend/long-weekend trips), with some pull toward longer stays during snowbird season (Dec-Apr). Adjust based on actual Huddleston Reef operating data if available.",
     "monthly_utilities_usd": 350,
-    "monthly_str_insurance_premium_usd": 175
+    "monthly_str_insurance_premium_usd": 175,
+    "security_deposit_multiplier_of_monthly_rent": 2.0
   },
   "one_time_setup_costs": {
-    "furnishing_and_setup_usd": 15000,
-    "furnishing_amortization_months": 36
+    "full_furnishing_and_setup_usd": 15000,
+    "full_furnishing_amortization_months": 36,
+    "furnished_property_touch_up_usd": 2500,
+    "touch_up_amortization_months": 12
   },
   "notes": "Figures reflect Huddleston Reef's typical South Florida cost structure; used as a reasonable default when a market-specific cost estimate is not available. A production version would source these per-market rather than using a single default."
 }

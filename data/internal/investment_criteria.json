@@ -1,9 +1,11 @@
 {
   "firm_name": "Huddleston Reef LLC",
   "investment_thresholds": {
-    "minimum_str_uplift_ratio": 1.8,
-    "target_str_uplift_ratio": 2.0,
-    "minimum_net_uplift_ratio_after_costs": 1.4
+    "minimum_annual_net_profit_usd": 15000,
+    "target_annual_net_profit_usd": 25000,
+    "minimum_cash_on_cash_return_pct": 40,
+    "target_cash_on_cash_return_pct": 70,
+    "PLACEHOLDER_NOTE": "These are illustrative placeholders, not researched figures -- the user needs to replace them with real numbers reflecting what Huddleston Reef actually considers a worthwhile deal before this is final. This covers both the Net Annual Profit and Cash-on-Cash Return thresholds above."
   },
   "regulatory_risk_tolerance": {
     "green": "auto-qualify for further underwriting",
