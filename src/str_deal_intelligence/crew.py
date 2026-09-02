@@ -4,8 +4,8 @@ STR Deal Intelligence Crew.
 Architecture, in order of execution:
 
   Stage 1 (parallel -- both only need the raw address):
-    - property_intake_task    (RentCast: property facts + long-term rent)
-    - regulatory_task         (web search: STR regulatory risk flag)     [async]
+    - property_intake_task    (RentCast: property facts + long-term rent)  [async]
+    - regulatory_task         (web search: STR regulatory risk flag)       [async]
 
   Stage 2 (needs property_intake's bedroom count):
     - market_underwriting_task (AirROI: ADR / occupancy / gross revenue)
@@ -17,8 +17,21 @@ Architecture, in order of execution:
     - internal_fit_task        (checks against Huddleston Reef's real criteria)
 
   Stage 5 (parallel -- two different audiences, two different data diets):
-    - investor_report_task     (sees everything)                        
-    - owner_pitch_task         (sees ONLY property + market data)        [async]
+    - investor_report_task     (sees everything)                          [async]
+    - owner_pitch_task         (sees ONLY property + market data)         [async]
+
+  Stage 6 (barrier -- closes out Stage 5's two async tasks):
+    - deal_packet_confirmation_task (verdict + generation confirmation + date)
+
+Stage 1 and Stage 5 achieve genuine concurrent execution because
+CrewAI's sequential process only overlaps tasks that are both
+async_execution=True AND adjacent in task list order -- a lone async
+task next to a sync task never actually overlaps with anything, since
+the very next sync task blocks on it before running. Stage 6 exists
+because CrewAI's sequential process refuses to end a crew with more
+than one trailing async task -- deal_packet_confirmation_task is a real
+(if minimal) synchronous task, not a placeholder, and is the reason
+Stage 5 is allowed to be async at all.
 
 The investor/owner split at Stage 5 is a deliberate control boundary, not
 just a prompt instruction: owner_pitch_task's context list does not
@@ -115,6 +128,7 @@ class StrDealIntelligenceCrew:
         return Task(
             config=self.tasks_config["property_intake_task"],
             agent=self.property_intake_specialist(),
+            async_execution=True,
         )
 
     @task
@@ -161,6 +175,7 @@ class StrDealIntelligenceCrew:
                 self.financial_task(),
                 self.internal_fit_task(),
             ],
+            async_execution=True,
             guardrail=validate_investor_report,
             output_file="sample_output/investor_underwriting_brief.md",
         )
@@ -177,6 +192,18 @@ class StrDealIntelligenceCrew:
             async_execution=True,
             guardrail=validate_owner_pitch,
             output_file="sample_output/owner_pitch_report.md",
+        )
+
+    @task
+    def deal_packet_confirmation_task(self) -> Task:
+        # Synchronous barrier task, deliberately: CrewAI's sequential
+        # process forbids ending a crew with more than one trailing async
+        # task, so this closes out the two parallel report-writing tasks
+        # above and gives them a real predecessor to block on.
+        return Task(
+            config=self.tasks_config["deal_packet_confirmation_task"],
+            agent=self.investor_report_writer(),
+            context=[self.investor_report_task(), self.owner_pitch_task()],
         )
 
     # ----------------------------------------------------------------- crew

@@ -233,3 +233,18 @@ owner_pitch_task:
     potential, and no fabricated statistics -- every number traces back
     to actual tool output.
   agent: owner_pitch_writer
+
+deal_packet_confirmation_task:
+  description: >
+    Both the internal underwriting brief and the owner pitch report have
+    now been generated. Produce a short manifest confirming the deal
+    packet is complete: one line stating the verdict from the investor
+    underwriting brief (PURSUE, PASS, or MANUAL REVIEW), one line
+    confirming both documents were generated, and one line with today's
+    date ({current_date}). Do not restate financial figures, reasoning,
+    or any other content from either report.
+  expected_output: >
+    A three-line manifest: the investor brief's verdict (PURSUE, PASS, or
+    MANUAL REVIEW), confirmation both the investor underwriting brief and
+    owner pitch report were generated, and today's date ({current_date}).
+  agent: investor_report_writer
